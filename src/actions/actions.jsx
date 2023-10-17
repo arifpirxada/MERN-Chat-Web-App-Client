@@ -1,9 +1,8 @@
-export const signup = (userData) => ({
-    type: "SIGNUP",
+export const changeLogStatus = (userData) => ({
+    type: "CHANGELOGSTATUS",
     payload: userData
 })
 
-export const login = (userData) => ({
-    type: "LOGIN",
-    payload: userData
+export const logoutUser = () => ({
+    type: "LOGOUTUSER",
 })

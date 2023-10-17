@@ -1,9 +1,83 @@
+import { useEffect, useState } from "react"
+import userImg from "../img/user.jpg"
+
 function Search() {
 
     const closeSearch = () => {
         document.getElementById("search-nav").classList.add("invisible")
         document.getElementById("search-nav").classList.add("translate-x-full")
     }
+
+    const [skip, setSkip] = useState(0)
+    const [num, setNum] = useState(1)
+    const [userData, setUserData] = useState([])
+
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch(`/api/read-users/${skip}`)
+            const data = await res.json()
+            if (skip === 0) {
+                setUserData(data)
+            } else {
+                const updateData = userData
+                data.map((element) => {
+                    updateData.push(element)
+                })
+                setUserData(updateData)
+            }
+            if (skip < num) {
+                setSkip(skip + 20)
+            }
+        } catch (e) {
+            console.error("Error while fetching users", e)
+        }
+    }
+
+    const getUserNum = async () => {
+        try {
+            const res = await fetch(`/api/read-users-num`)
+            const data = await res.json()
+            setNum(data.num)
+            fetchUsers()
+        } catch {
+            console.error("Error while fetching users number")
+        }
+    }
+
+    useEffect(() => {
+        getUserNum()
+    }, [])
+
+
+    // Search Here ->
+    const [searchNum, setSearchNum] = useState(0)
+    const [query, setQuery] = useState("")
+    const search = async (q) => {
+        try {
+            if (q === "") return
+            const res = await fetch(`/api/search/${q}/${searchNum}`)
+            const data = await res.json()
+            if (searchNum === 0) {
+                setUserData(data[0])
+            } else {
+                const updateData = userData
+                data[0].map((element) => {
+                    updateData.push(element)
+                })
+                setUserData(updateData)
+            }
+
+            if (data[1] > searchNum) {
+                setSearchNum(searchNum + 20)
+            }
+        } catch (e) {
+
+        }
+    }
+
+    useEffect(() => {
+        setSearchNum(0)
+    }, [query])
 
     return (
         <>
@@ -45,8 +119,8 @@ function Search() {
                 <div className="m-4">
                     <input
                         type="search"
+                        onChange={ (e) => { setQuery(e.target.value); search(e.target.value) } }
                         className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-white outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
-                        id="exampleSearch"
                         placeholder="Search Users" />
                 </div>
                 <div className="offcanvas-body flex-grow overflow-y-auto hidden-scroll p-4">
@@ -55,99 +129,19 @@ function Search() {
                     <div className="container my-16 mx-auto md:px-6">
                         <section className="mb-32 text-center">
                             <div className="flex flex-wrap gap-8 justify-center">
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
 
-                                    <p className="mb-2 font-bold">John Doe</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Co-founder</p>
-                                </div>
+                                { userData.length > 0 && userData.map((element, i) => (
+                                    <div key={ i } className="mb-2">
+                                        <div className=" rounded-full overflow-hidden w-[100px] h-[100px]">
+                                            <img src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg }
+                                                className="mx-auto mb-4 cursor-pointer rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
+                                        </div>
+                                        <p className="mb-2 font-bold">{ element.name }</p>
+                                    </div>
+                                )) }
 
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/5.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-
-                                    <p className="mb-2 font-bold">Lisa Ferrol</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Web designer</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/6.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Maria Smith</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">
-                                        Senior consultant
-                                    </p>
-                                </div>
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/7.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Agatha Bevos</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Co-founder</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/8.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Darren Randolph</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">
-                                        Marketing expert
-                                    </p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/9.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Soraya Letto</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">SEO expert</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/10.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Maliha Welch</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Web designer</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/11.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Zeynep Dudley</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Web developer</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/12.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Avaya Hills</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Copywritter</p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/13.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Thierry Fischer</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">
-                                        Senior consultant
-                                    </p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/14.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Aisling Sheldon</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">
-                                        Senior developer
-                                    </p>
-                                </div>
-
-                                <div className="mb-12">
-                                    <img src="https://mdbcdn.b-cdn.net/img/new/avatars/15.jpg"
-                                        className="mx-auto mb-4 rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
-                                    <p className="mb-2 font-bold">Ayat Black</p>
-                                    <p className="text-neutral-500 dark:text-neutral-300">Web designer</p>
-                                </div>
                             </div>
+                            { userData.length % 20 === 0 && <button onClick={ () => { query === "" ? fetchUsers() : search(query) } } type="button" className="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-full text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">View more</button> }
                         </section>
                     </div>
                     {/* User Listing end */ }

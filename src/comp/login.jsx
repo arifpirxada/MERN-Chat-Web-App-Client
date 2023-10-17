@@ -1,33 +1,121 @@
 import logo from "../img/logo.png";
-import { useSelector, useDispatch } from "react-redux"
-import { signup, login } from "../actions/actions"
+import { useDispatch } from "react-redux"
+import { changeLogStatus } from "../actions/actions"
 import { useEffect } from "react";
 
 function Login() {
 
-    const logged = useSelector((state) => state.registration.logged)
     const dispatch = useDispatch()
-    useEffect(() => {
-        console.log(logged)
-    }, [logged])
-
-    // Login func
-    const loginUser = (e) => {
-        e.preventDefault()
-        const userData = {
-            email: "arif@gmail.com",
-            password: "1234"
+    const authorize = async () => {
+        const res = await fetch("/api/authorize")
+        const data = await res.json()
+        if (data.message === "logged in") {
+            dispatch(changeLogStatus(data.userData))
         }
-        dispatch(login(userData))
     }
 
-    const signupUser = (e) => {
+    useEffect(() => {
+        authorize()
+    }, [])
+
+    // Login func
+    const loginUser = async (e) => {
         e.preventDefault()
-        const userData = {
-            email: "arif@gmail.com",
-            password: "1234"
+
+        const email = document.getElementById("log-email").value
+        const password = document.getElementById("log-pass").value
+        const mesBox = document.getElementById("log-message")
+
+        if (email === "" || password === "") {
+            mesBox.innerHTML = "Please provide email & password!"
+            mesBox.parentNode.classList.remove("opacity-0")
+            setTimeout(() => {
+                mesBox.parentNode.classList.add("opacity-0")
+            }, 4000);
+            return
         }
-        dispatch(signup(userData))
+
+        const userData = {
+            email: email,
+            password: password
+        }
+
+        const res = await fetch("/api/login", {
+            method: "POST",
+            body: JSON.stringify(userData),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        const data = await res.json()
+
+        mesBox.innerHTML = data.message
+        mesBox.parentNode.classList.remove("opacity-0")
+        setTimeout(() => {
+            mesBox.parentNode.classList.add("opacity-0")
+        }, 4000);
+
+        if (data.message === "login successful") {
+            authorize()
+        }
+    }
+
+    // signup here
+
+    const signupUser = async (e) => {
+        e.preventDefault()
+
+        const name = document.getElementById("name").value
+        const email = document.getElementById("sign-email").value
+        const password = document.getElementById("sign-pass").value
+        const mesBox = document.getElementById("sign-message")
+
+        if (name === "" || email === "" || password === "") {
+            mesBox.innerHTML = "Please fill all the fields!"
+            mesBox.parentNode.classList.remove("opacity-0")
+            setTimeout(() => {
+                mesBox.parentNode.classList.add("opacity-0")
+            }, 4000);
+            return
+        }
+
+        const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+
+        if (!emailPattern.test(email)) {
+            mesBox.innerHTML = "Please provide a valid Email"
+            mesBox.parentNode.classList.remove("opacity-0")
+            setTimeout(() => {
+                mesBox.parentNode.classList.add("opacity-0")
+            }, 4000);
+            return
+        }
+
+        const userData = {
+            name: name,
+            email: email,
+            password: password
+        }
+
+        const res = await fetch("/api/signup", {
+            method: "POST",
+            body: JSON.stringify(userData),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+
+        const data = await res.json()
+
+        mesBox.innerHTML = data.message
+        mesBox.parentNode.classList.remove("opacity-0")
+        setTimeout(() => {
+            mesBox.parentNode.classList.add("opacity-0")
+        }, 4000);
+
+        if (data.message === "Insertion successful") {
+            authorize()
+        }
     }
 
     const openSignupForm = (e) => {
@@ -74,14 +162,14 @@ function Login() {
                 <div className="container">
                     <div className="flex flex-wrap -mx-4">
                         <div className="w-full px-4">
-                            {/* Login Here  */ }
-                            <div className="shadow-xl border max-w-[525px] mx-auto text-center bg-white rounded-lg relative overflow-hidden py-16 px-10 sm:px-12 md:px-[60px]">
+                            <div className="shadow-xl border max-w-[525px] mx-auto text-center bg-white rounded-lg relative overflow-hidden py-12 px-10 sm:px-12 md:px-[60px]">
                                 <div className="mb-10 text-center">
                                     <div className="inline-block max-w-[50px] mx-auto">
                                         <img src={ logo } alt="logo" />
                                     </div>
                                 </div>
-                                <form id="login-form" className="transition-all duration-200 ease-linear">
+                                {/* Login Here  */ }
+                                <form id="login-form" className="hidden opacity-0 transition-all duration-200 ease-linear">
                                     <div className="mb-6">
                                         <input
                                             type="text"
@@ -110,13 +198,16 @@ function Login() {
                                             Show password
                                         </label>
                                     </div>
-                                    <div className="mb-10">
+                                    <div className="mb-3">
                                         <input
                                             type="submit"
                                             value="Log in"
                                             onClick={ loginUser }
                                             className="w-full rounded-md border border-primary py-3 px-5 bg-blue-700 text-base text-white cursor-pointer hover:bg-opacity-90 transition"
                                         />
+                                    </div>
+                                    <div className="bg-orange-100 opacity-0 transition border-l-4 min-h-[40px] border-orange-500 text-orange-700 p-2 mb-2" role="alert">
+                                        <p id="log-message"></p>
                                     </div>
                                     <p className="text-base text-[#adadad]">
                                         Not a member yet?&nbsp;
@@ -125,7 +216,7 @@ function Login() {
                                 </form>
                                 {/* Signup Here  */ }
 
-                                <form id="signup-form" className="hidden opacity-0 transition-all duration-200 ease-linear">
+                                <form id="signup-form" className="transition-all duration-200 ease-linear">
                                     <div className="mb-6">
                                         <input
                                             type="text"
@@ -162,13 +253,16 @@ function Login() {
                                             Show password
                                         </label>
                                     </div>
-                                    <div className="mb-10">
+                                    <div className="mb-3">
                                         <input
                                             type="submit"
                                             value="Sign Up"
                                             onClick={ signupUser }
                                             className="w-full rounded-md border border-primary py-3 px-5 bg-blue-700 text-base text-white cursor-pointer hover:bg-opacity-90 transition"
                                         />
+                                    </div>
+                                    <div className="bg-orange-100 opacity-0 transition border-l-4 min-h-[40px] border-orange-500 text-orange-700 p-2 mb-2" role="alert">
+                                        <p id="sign-message"></p>
                                     </div>
                                     <p className="text-base text-[#adadad]">
                                         Already a member?&nbsp;
