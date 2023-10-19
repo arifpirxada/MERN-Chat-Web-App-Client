@@ -1,3 +1,8 @@
+import { useSelector, useDispatch } from "react-redux"
+import { selectUser, setRecentUsers } from "../actions/actions"
+import { useEffect } from "react"
+import userImg from "../img/user.jpg"
+
 function Recent() {
 
     const closeRecent = () => {
@@ -6,6 +11,28 @@ function Recent() {
         document.getElementById("sidenav").classList.remove("w-72")
         document.getElementById("sidenav").classList.add("w-0")
     }
+
+    const recentUsers = useSelector((state) => state.recentUsers)
+    const uid = useSelector((state) => state.registration.userData.uid)
+
+    const dispatch = useDispatch()
+
+    const fetchRecentUsers = async () => {
+        if (!uid) return
+        try {
+            const res = await fetch(`/api/read-recent/${uid}`)
+            const data = await res.json()
+            if (data.message !== "No recents found") {
+                dispatch(setRecentUsers(data))
+            }
+        } catch (e) {
+            console.log("Error while setting recent users")
+        }
+    }
+
+    useEffect(() => {
+        fetchRecentUsers()
+    }, [uid])
 
     return (
         <>
@@ -33,10 +60,7 @@ function Recent() {
                                             clipRule="evenodd" />
                                     </svg>
                                 </span>
-                                <span
-                                    className="absolute -mt-1 ml-2.5 rounded-full bg-danger px-[0.35em] py-[0.15em] text-[0.6rem] font-bold leading-none text-white bg-zinc-600"
-                                >1</span>
-                                <span>Recent Messages</span>
+                                <span>Recent Conversations</span>
                             </div>
                             <span
 
@@ -61,36 +85,23 @@ function Recent() {
 
                     <div className="flex flex-col">
                         <hr className="border border-[#737373]" />
-                        <div className="mb-1 text-white transition duration-300 ease-linear cursor-pointer flex items-center hover:bg-slate-700">
-                            <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.jpg"
-                                className="my-2 rounded-full shadow-lg dark:shadow-black/20 max-w-[50px]" alt="" />
-                            <div className="">
-                                <p className="font-bold">John Doe</p>
-                                <p className="">Co-founder</p>
+                        { recentUsers.map((element, i) => (
+                            <div key={ i }>
+                                <div onClick={ () => { dispatch(selectUser({ _id: element._id, name: element.name, pic: element.pic })); localStorage.setItem("selected", JSON.stringify({ _id: element._id, name: element.name, pic: element.pic })) } } className="mb-1 text-white transition duration-300 ease-linear cursor-pointer flex items-center hover:bg-slate-700" >
+                                    <div className="rounded-full overflow-hidden">
+                                        <img src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg }
+                                            className="my-2 rounded-full shadow-lg dark:shadow-black/20 w-[50px]" alt="" />
+                                    </div>
+                                    <div className="pl-2">
+                                        <p className="font-bold">{ element.name }</p>
+                                    </div>
+                                </div><hr className="border border-[#737373]" />
                             </div>
-                        </div><hr className="border border-[#737373]" />
-
-                        <div className="mb-1 text-white transition duration-300 ease-linear cursor-pointer flex items-center hover:bg-slate-700">
-                            <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.jpg"
-                                className="my-2 rounded-full shadow-lg dark:shadow-black/20 max-w-[50px]" alt="" />
-                            <div className="">
-                                <p className="font-bold">John Doe</p>
-                                <p className="">Co-founder</p>
-                            </div>
-                        </div><hr className="border border-[#737373]" />
-
-                        <div className="mb-1 text-white transition duration-300 ease-linear cursor-pointer flex items-center hover:bg-slate-700">
-                            <img src="https://mdbcdn.b-cdn.net/img/new/avatars/2.jpg"
-                                className="my-2 rounded-full shadow-lg dark:shadow-black/20 max-w-[50px]" alt="" />
-                            <div className="">
-                                <p className="font-bold">John Doe</p>
-                                <p className="">Co-founder</p>
-                            </div>
-                        </div><hr className="border border-[#737373]" />
+                        )) }
 
                     </div>
-                </ul>
-            </nav>
+                </ul >
+            </nav >
         </>
     )
 }

@@ -2,6 +2,7 @@ import logo from "../img/logo.png"
 import userImg from "../img/user.jpg"
 import { useSelector, useDispatch } from "react-redux"
 import { logoutUser } from "../actions/actions"
+import { useEffect } from "react"
 
 function Navbar() {
 
@@ -131,10 +132,20 @@ function Navbar() {
         }
     }
 
+    const toggleNotifications = () => {
+        document.getElementById("notifications").classList.toggle("hidden")
+        document.getElementById("notifications").classList.toggle("opacity-0")
+        document.getElementById("notification-bg").classList.toggle("hidden")
+        document.getElementById("notification-bg").classList.toggle("opacity-0")
+    }
+
+    const notificationArr = useSelector((state) => state.notifications)
+
     return (
         <>
             <div onClick={ toggleRecent } id="sidenav-bg" className="opacity-0 z-40 hidden w-full h-full bg-[rgba(0,0,0,0.2)] fixed transition-all duration-200 ease-linear"></div>
             <div onClick={ toggleProfile } id="profile-bg" className="opacity-0 z-40 hidden w-full h-full bg-transparent fixed transition-all duration-200 ease-linear"></div>
+            <div onClick={ toggleNotifications } id="notification-bg" className="opacity-0 z-40 hidden w-full h-full bg-transparent fixed transition-all duration-200 ease-linear"></div>
             <nav
                 id="top-nav"
                 className="lg:left-72 transition-all duration-200 ease-linear flex-no-wrap relative flex my-nav items-center justify-between bg-[#FBFBFB] py-2 shadow-md shadow-black/5 dark:bg-neutral-600 dark:shadow-black/10 lg:flex-wrap lg:justify-start lg:py-4">
@@ -177,8 +188,82 @@ function Navbar() {
                     </div>
 
                     <div className="relative flex items-center">
+                        <div
+                            className="hidden-arrow cursor-pointer mr-2 flex items-center text-neutral-600 transition duration-200 hover:text-neutral-700 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none dark:text-neutral-200 dark:hover:text-neutral-300 dark:focus:text-neutral-300 [&.active]:text-black/90 dark:[&.active]:text-neutral-400">
+                            <div onClick={ toggleNotifications }>
+                                <span className="[&>svg]:w-5">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="h-5 w-5">
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z"
+                                            clipRule="evenodd" />
+                                    </svg>
+                                </span>
+                                { notificationArr.length > 0 ?
+                                    <span
+                                        className="absolute -mt-6 ml-2.5 rounded-full bg-red-500 px-[0.35em] py-[0.15em] text-[0.6rem] font-bold leading-none text-white"
+                                    >{ notificationArr.length }</span> : "" }
+                            </div>
+                            <div
+                                id="notifications"
+                                className="absolute opacity-0 hidden transition-all top-8 right-10 z-50 m-0 min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg dark:bg-neutral-700 [&[data-te-dropdown-show]]:block"
+                            >
+                                <div>
+
+                                    <div className="w-full max-w-xs p-4 cursor-context-menu text-gray-900 bg-white rounded-lg shadow dark:bg-gray-800 dark:text-gray-300" role="alert">
+                                        <div className="flex items-center mb-3">
+                                            <span className="mb-1 text-sm font-semibold text-gray-900 dark:text-white">Notifications</span>
+                                            <button onClick={ toggleNotifications } type="button" className="ml-auto cursor-pointer -mx-1.5 -my-1.5 bg-white justify-center items-center flex-shrink-0 text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">
+                                                <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        { notificationArr && notificationArr.map((element, i) => (
+                                            <div key={ i } className="flex items-center my-2 cursor-pointer">
+                                                <div className="relative inline-block shrink-0">
+                                                    <img className="w-12 h-12 rounded-full" src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg } alt="Jese Leos image" />
+                                                    <span className="absolute bottom-0 right-0 inline-flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                                                        <svg className="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 18" fill="currentColor">
+                                                            <path d="M18 4H16V9C16 10.0609 15.5786 11.0783 14.8284 11.8284C14.0783 12.5786 13.0609 13 12 13H9L6.846 14.615C7.17993 14.8628 7.58418 14.9977 8 15H11.667L15.4 17.8C15.5731 17.9298 15.7836 18 16 18C16.2652 18 16.5196 17.8946 16.7071 17.7071C16.8946 17.5196 17 17.2652 17 17V15H18C18.5304 15 19.0391 14.7893 19.4142 14.4142C19.7893 14.0391 20 13.5304 20 13V6C20 5.46957 19.7893 4.96086 19.4142 4.58579C19.0391 4.21071 18.5304 4 18 4Z" fill="currentColor" />
+                                                            <path d="M12 0H2C1.46957 0 0.960859 0.210714 0.585786 0.585786C0.210714 0.960859 0 1.46957 0 2V9C0 9.53043 0.210714 10.0391 0.585786 10.4142C0.960859 10.7893 1.46957 11 2 11H3V13C3 13.1857 3.05171 13.3678 3.14935 13.5257C3.24698 13.6837 3.38668 13.8114 3.55279 13.8944C3.71889 13.9775 3.90484 14.0126 4.08981 13.996C4.27477 13.9793 4.45143 13.9114 4.6 13.8L8.333 11H12C12.5304 11 13.0391 10.7893 13.4142 10.4142C13.7893 10.0391 14 9.53043 14 9V2C14 1.46957 13.7893 0.960859 13.4142 0.585786C13.0391 0.210714 12.5304 0 12 0Z" fill="currentColor" />
+                                                        </svg>
+                                                    </span>
+                                                </div>
+                                                <div className="ml-3 text-sm font-normal">
+                                                    <div className="text-sm anywhere-break font-semibold text-gray-900 dark:text-white">{ element.name }</div>
+                                                    <div className="text-sm anywhere-break font-normal">{ element.message }</div>
+                                                </div>
+                                            </div>
+                                        )) }
+
+                                        {/* <div className="flex items-center my-2 cursor-pointer">
+                                            <div className="relative inline-block shrink-0">
+                                                <img className="w-12 h-12 rounded-full" src={ userImg } alt="Jese Leos image" />
+                                                <span className="absolute bottom-0 right-0 inline-flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                                                    <svg className="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 18" fill="currentColor">
+                                                        <path d="M18 4H16V9C16 10.0609 15.5786 11.0783 14.8284 11.8284C14.0783 12.5786 13.0609 13 12 13H9L6.846 14.615C7.17993 14.8628 7.58418 14.9977 8 15H11.667L15.4 17.8C15.5731 17.9298 15.7836 18 16 18C16.2652 18 16.5196 17.8946 16.7071 17.7071C16.8946 17.5196 17 17.2652 17 17V15H18C18.5304 15 19.0391 14.7893 19.4142 14.4142C19.7893 14.0391 20 13.5304 20 13V6C20 5.46957 19.7893 4.96086 19.4142 4.58579C19.0391 4.21071 18.5304 4 18 4Z" fill="currentColor" />
+                                                        <path d="M12 0H2C1.46957 0 0.960859 0.210714 0.585786 0.585786C0.210714 0.960859 0 1.46957 0 2V9C0 9.53043 0.210714 10.0391 0.585786 10.4142C0.960859 10.7893 1.46957 11 2 11H3V13C3 13.1857 3.05171 13.3678 3.14935 13.5257C3.24698 13.6837 3.38668 13.8114 3.55279 13.8944C3.71889 13.9775 3.90484 14.0126 4.08981 13.996C4.27477 13.9793 4.45143 13.9114 4.6 13.8L8.333 11H12C12.5304 11 13.0391 10.7893 13.4142 10.4142C13.7893 10.0391 14 9.53043 14 9V2C14 1.46957 13.7893 0.960859 13.4142 0.585786C13.0391 0.210714 12.5304 0 12 0Z" fill="currentColor" />
+                                                    </svg>
+                                                    <span className="sr-only">Message icon</span>
+                                                </span>
+                                            </div>
+                                            <div className="ml-3 text-sm font-normal">
+                                                <div className="text-sm font-semibold text-gray-900 dark:text-white">Bonnie Green</div>
+                                                <div className="text-sm font-normal">commmented on your photo</div>
+                                            </div>
+                                        </div> */}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                         <span onClick={ openSearch }
-                            className="input-group-text cursor-pointer flex items-center whitespace-nowrap rounded px-3 py-1.5 text-center text-base font-normal text-neutral-700 dark:text-neutral-200"
+                            className="input-group-text mr-1 cursor-pointer flex items-center whitespace-nowrap rounded px-3 py-1.5 text-center text-base font-normal text-neutral-700 dark:text-neutral-200"
                             id="basic-addon2">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"

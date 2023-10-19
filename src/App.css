@@ -43,3 +43,7 @@
     height: calc(100vh - 48px);
   }
 }
+
+.anywhere-break {
+  line-break: anywhere !important;
+}

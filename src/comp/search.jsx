@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import userImg from "../img/user.jpg"
+import { useSelector, useDispatch } from "react-redux"
+import { addRecentUser } from "../actions/actions"
 
 function Search() {
 
@@ -79,6 +81,30 @@ function Search() {
         setSearchNum(0)
     }, [query])
 
+
+    const dispatch = useDispatch()
+
+    const uid = useSelector((state) => state.registration.userData.uid)
+
+    const addRecent = async (recent) => {
+        try {
+            const recentData = {
+                uid: uid,
+                recent: recent
+            }
+            await fetch("/api/create-recent", {
+                method: "POST",
+                body: JSON.stringify(recentData),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+
+        } catch (e) {
+            console.error("Error while adding recent Users")
+        }
+    }
+
     return (
         <>
             <div
@@ -132,7 +158,7 @@ function Search() {
 
                                 { userData.length > 0 && userData.map((element, i) => (
                                     <div key={ i } className="mb-2">
-                                        <div className=" rounded-full overflow-hidden w-[100px] h-[100px]">
+                                        <div onClick={ () => { dispatch(addRecentUser({ _id: element._id, name: element.name, pic: element.pic })); addRecent(element._id) } } className=" rounded-full overflow-hidden w-[100px] h-[100px]">
                                             <img src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg }
                                                 className="mx-auto mb-4 cursor-pointer rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
                                         </div>
