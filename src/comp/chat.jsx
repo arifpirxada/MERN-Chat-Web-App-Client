@@ -44,6 +44,7 @@ function Chat() {
     // Fetch Messages Here 
 
     const [messageArr, setMessageArr] = useState()
+    const [latestMessages, setLatestMessages] = useState([])
 
     const fetchMessages = async () => {
         if (!user || !user.user._id || !uid) return
@@ -51,18 +52,17 @@ function Chat() {
             const res = await fetch(`/api/read-msg/${uid}/${user.user._id}`)
             const data = await res.json()
             setMessageArr(data)
-        } catch (e) {
+            setTimeout(() => {
+                messageContainer.current.scrollTop = messageContainer.current.scrollHeight
+            }, 10);
+        } catch {
             console.error("Error while fetching messages")
         }
     }
 
     useEffect(() => {
-        const newMessages = document.querySelectorAll(".new-chat-message")
-        newMessages.forEach(element => {
-            element.remove()
-        });
+        setLatestMessages([])
         fetchMessages()
-        messageContainer.current.scrollTop = messageContainer.current.scrollHeight
     }, [user])
 
     useEffect(() => {
@@ -85,34 +85,37 @@ function Chat() {
         }
     }
 
-    useEffect(() => {
-        if (user && recentUsers) {
-            socket.on("receive message", (data) => {
-                if (user.user._id === data.sender) {
-                    messageContainer.current.insertAdjacentHTML("beforeend", `
-            <div class="chat-message new-chat-message">
-            <div class="flex items-end">
-            <div class="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-2 items-start">
-            <div><span class="px-4 py-2 anywhere-break rounded-lg inline-block rounded-bl-none bg-gray-300 text-gray-600">${data.message}</span></div>
-            </div>
-            <div class="rounded-full overflow-hidden w-6 h-6">
-            <img src=${user && user.user.pic ? `/api/read-user-img/${user.user.pic}` : userImg} alt="My profile" class="w-6 rounded-full order-1" />
-            </div>
-            </div>
-            </div>`)
-                } else {
-                    const checkExisting = recentUsers.filter(item => item._id === data.sender)
-                    if (!checkExisting || checkExisting.length === 0) {
-                        updateRecent(data.sender, data.message)
-                        return
-                    }
-                }
-                messageContainer.current.scrollTop = messageContainer.current.scrollHeight
-            })
-        }
-    }, [user, recentUsers])
 
-    const message = document.getElementById("user-message")
+    const receiveMessage = (data) => {
+        setLatestMessages((prevMessages) => [...prevMessages, data])
+    }
+
+    const messageRef = useRef(null)
+
+    useEffect(() => {
+        if (latestMessages[0] && user && latestMessages[0].sender !== user.user._id && latestMessages[0].sender !== uid) {
+            updateRecent(latestMessages[0].sender, latestMessages[0].message)
+            setLatestMessages([])
+        } else if (!user && latestMessages[0]) {
+            console.log(latestMessages)
+            updateRecent(latestMessages[0].sender, latestMessages[0].message)
+            setLatestMessages([])
+        }
+        if (messageContainer.current) {
+            messageContainer.current.scrollTop = messageContainer.current.scrollHeight;
+        }
+        if (messageRef) {
+            messageRef.current.value = ""
+        }
+    }, [latestMessages])
+
+    useEffect(() => {
+        socket.on("receive message", receiveMessage)
+        return () => {
+            socket.off("receive message", receiveMessage)
+        }
+    }, [])
+
 
     const sendMessage = (e) => {
         e.preventDefault()
@@ -120,20 +123,8 @@ function Chat() {
             alert("No user selected")
             return
         }
-        socket.emit("send message", { message: message.value, sender: uid, receiver: user.user._id })
-        messageContainer.current.insertAdjacentHTML("beforeend", `
-        <div class="chat-message new-chat-message">
-        <div class="flex items-end flex-row-reverse">
-        <div class="flex flex-col space-y-2 text-sm max-w-xs mx-2 order-1 items-end">
-        <div><span class="px-4 py-2 rounded-lg inline-block anywhere-break rounded-br-none bg-blue-600 text-white ">${message.value}</span></div>
-        </div>
-        <div class="rounded-full overflow-hidden w-6 h-6">
-        <img src=${pic ? `/api/read-user-img/${pic}` : userImg} alt="My profile" class="w-6 rounded-full order-2" />
-        </div>
-        </div>
-        </div>`)
-        messageContainer.current.scrollTop = messageContainer.current.scrollHeight
-        message.value = ""
+        socket.emit("send message", { message: messageRef.current.value, sender: uid, receiver: user.user._id })
+        setLatestMessages((prevMessages) => [...prevMessages, { message: messageRef.current.value, sender: uid }])
     }
 
     return (
@@ -179,10 +170,22 @@ function Chat() {
                             </div>
                         </div>
                     )) }
+                    { user && latestMessages && latestMessages.length > 0 && latestMessages.map((element, i) => (
+                        <div key={ i } className="chat-message">
+                            <div className={ `flex items-end ${element.sender === uid ? "justify-end" : "flex-row-reverse justify-end"}` }>
+                                <div className={ `flex flex-col space-y-2 text-sm max-w-xs mx-2 ${element.sender === uid ? "items-end" : "items-start"}` }>
+                                    <div><span className={ `px-4 py-2 anywhere-break rounded-lg inline-block ${element.sender === uid ? "rounded-br-none bg-blue-600 text-white" : "rounded-bl-none bg-gray-300 text-gray-600"}` }>{ element.message }</span></div>
+                                </div>
+                                <div className="rounded-full overflow-hidden w-6 h-6">
+                                    <img src={ element.sender === uid ? pic ? `/api/read-user-img/${pic}` : userImg : user.user.pic ? `/api/read-user-img/${user.user.pic}` : userImg } alt="My profile" className="w-6 rounded-full order-2" />
+                                </div>
+                            </div>
+                        </div>
+                    )) }
                 </div>
                 <div className="border-t-2 border-gray-200 px-2 pt-4 mb-2 sm:mb-0">
                     <form className="relative flex">
-                        <input id="user-message" type="text" placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-4 sm:pl-12 bg-gray-200 rounded-md py-3" />
+                        <input ref={ messageRef } id="user-message" type="text" placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-4 sm:pl-12 bg-gray-200 rounded-md py-3" />
                         <div className="absolute right-0 items-center inset-y-0 flex">
                             <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
