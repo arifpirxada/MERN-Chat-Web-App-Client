@@ -8,6 +8,8 @@ function Search() {
     const closeSearch = () => {
         document.getElementById("search-nav").classList.add("invisible")
         document.getElementById("search-nav").classList.add("translate-x-full")
+        document.getElementById("search-bg").classList.toggle("hidden")
+        document.getElementById("search-bg").classList.toggle("opacity-0")
     }
 
     const [skip, setSkip] = useState(0)

@@ -58,6 +58,10 @@ export const notificationReducer = (state = notifications, action) => {
         case "ADD_NOTIFICATION":
             return [action.payload, ...state];
 
+        case "REMOVE_NOTIFICATION":
+            const updateNotify = state.filter(item => item._id !== action.payload)
+            return updateNotify
+
         default:
             return state;
     }
