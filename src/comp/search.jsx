@@ -161,7 +161,7 @@ function Search() {
                                 { userData.length > 0 && userData.map((element, i) => (
                                     <div key={ i } className="mb-2">
                                         <div onClick={ () => { dispatch(addRecentUser({ _id: element._id, name: element.name, pic: element.pic })); addRecent(element._id) } } className=" rounded-full overflow-hidden w-[100px] h-[100px]">
-                                            <img src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg }
+                                            <img src={ element.pic ? element.google && element.google == true ? element.pic : `/api/read-user-img/${element.pic}` : userImg }
                                                 className="mx-auto mb-4 cursor-pointer rounded-full shadow-lg dark:shadow-black/20 max-w-[100px]" alt="" />
                                         </div>
                                         <p className="mb-2 font-bold">{ element.name }</p>

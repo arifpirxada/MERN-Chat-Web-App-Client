@@ -89,7 +89,7 @@ function Recent() {
                             <div key={ i }>
                                 <div onClick={ () => { dispatch(selectUser({ _id: element._id, name: element.name, pic: element.pic })); localStorage.setItem("selected", JSON.stringify({ _id: element._id, name: element.name, pic: element.pic })) } } className="mb-1 text-white transition duration-300 ease-linear cursor-pointer flex items-center hover:bg-slate-700" >
                                     <div className="rounded-full overflow-hidden">
-                                        <img src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg }
+                                        <img src={ element.pic ? element.google && element.google == true ? element.pic : `/api/read-user-img/${element.pic}` : userImg }
                                             className="my-2 rounded-full shadow-lg dark:shadow-black/20 w-[50px]" alt="" />
                                     </div>
                                     <div className="pl-2">

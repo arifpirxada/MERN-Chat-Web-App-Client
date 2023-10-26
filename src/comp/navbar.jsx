@@ -2,6 +2,7 @@ import logo from "../img/logo.png"
 import userImg from "../img/user.jpg"
 import { useSelector, useDispatch } from "react-redux"
 import { logoutUser, removeNotification, selectUser } from "../actions/actions"
+import { useEffect } from "react"
 
 function Navbar() {
 
@@ -243,7 +244,7 @@ function Navbar() {
                                         { notificationArr && notificationArr.length > 0 ? notificationArr.map((element, i) => (
                                             <div key={ i } onClick={ () => { shiftSelectedRemoveNotify(element) } } className="flex items-center my-2 cursor-pointer">
                                                 <div className="relative inline-block shrink-0">
-                                                    <img className="w-12 h-12 rounded-full" src={ element.pic ? `/api/read-user-img/${element.pic}` : userImg } alt="Jese Leos image" />
+                                                    <img className="w-12 h-12 rounded-full" src={ element.pic ?  element.google && element.google == true ? element.pic : `/api/read-user-img/${element.pic}` : userImg } alt="Jese Leos image" />
                                                     <span className="absolute bottom-0 right-0 inline-flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
                                                         <svg className="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 18" fill="currentColor">
                                                             <path d="M18 4H16V9C16 10.0609 15.5786 11.0783 14.8284 11.8284C14.0783 12.5786 13.0609 13 12 13H9L6.846 14.615C7.17993 14.8628 7.58418 14.9977 8 15H11.667L15.4 17.8C15.5731 17.9298 15.7836 18 16 18C16.2652 18 16.5196 17.8946 16.7071 17.7071C16.8946 17.5196 17 17.2652 17 17V15H18C18.5304 15 19.0391 14.7893 19.4142 14.4142C19.7893 14.0391 20 13.5304 20 13V6C20 5.46957 19.7893 4.96086 19.4142 4.58579C19.0391 4.21071 18.5304 4 18 4Z" fill="currentColor" />
@@ -285,7 +286,7 @@ function Navbar() {
                             <img
                                 id="top-profile-img"
                                 onClick={ toggleProfile }
-                                src={ userData && userData.pic ? `/api/read-user-img/${userData.pic}` : userImg }
+                                src={ userData && userData.pic ?  userData.google && userData.google == true ? userData.pic : `/api/read-user-img/${userData.pic}` : userImg }
                                 className="rounded-full w-6 cursor-pointer"
                                 alt=""
                                 loading="lazy" />
@@ -302,7 +303,7 @@ function Navbar() {
                     className="block h-full rounded-bl-lg shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] bg-neutral-700">
                     <div className="flex justify-center">
                         <div className="rounded-full overflow-hidden w-[150px] h-[150px]">
-                            <img id="profile-img" src={ userData && userData.pic ? `/api/read-user-img/${userData.pic}` : userImg }
+                            <img id="profile-img" src={ userData && userData.pic ? userData.google && userData.google == true ? userData.pic : `/api/read-user-img/${userData.pic}` : userImg }
                                 className="mx-auto shadow-lg dark:shadow-black/20 w-[150px]" alt="Avatar" />
                         </div>
                     </div>

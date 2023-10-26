@@ -72,8 +72,6 @@ function Chat() {
         })
     }, [])
 
-    const recentUsers = useSelector((state) => state.recentUsers)
-
     const updateRecent = async (sid, message) => {
         try {
             const res = await fetch(`/api/read-user/${sid}`)
@@ -139,7 +137,7 @@ function Chat() {
                                 </svg>
                             </span>
                             <div className="rounded-full overflow-hidden w-10 h-10 sm:w-16 sm:h-16">
-                                <img src={ user && user.user.pic ? `/api/read-user-img/${user.user.pic}` : userImg } alt="" className="w-10 sm:w-16 rounded-full" />
+                                <img src={ user && user.user.pic ? user.user.google && user.user.google == true ? user.user.pic : `/api/read-user-img/${user.user.pic}` : userImg } alt="" className="w-10 sm:w-16 rounded-full" />
                             </div>
                         </div>
                         <div className="flex flex-col leading-tight">
