@@ -155,7 +155,7 @@ function Chat() {
                         </div>
                     </div>
                 </div>
-                <div ref={ messageContainer } id="messages" className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded bg-[#f7fafc] scrollbar-track-blue-lighter mb-[11vh] scrollbar-track-blue-lighter h-full w-full hidden-scroll scrolling-touch">
+                <div ref={ messageContainer } id="messages" className="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded bg-[#f7fafc] scrollbar-track-blue-lighter mb-[13vh] scrollbar-track-blue-lighter h-full w-full hidden-scroll scrolling-touch">
                     { messageArr && messageArr.map((element, i) => (
                         <div key={ i } className="chat-message">
                             <div className={ `flex items-end ${element.sender === uid ? "justify-end" : "flex-row-reverse justify-end"}` }>
