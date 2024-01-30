@@ -2,7 +2,6 @@ import logo from "../img/logo.png"
 import userImg from "../img/user.jpg"
 import { useSelector, useDispatch } from "react-redux"
 import { logoutUser, removeNotification, selectUser } from "../actions/actions"
-import { useEffect } from "react"
 
 function Navbar() {
 
@@ -128,6 +127,8 @@ function Navbar() {
             const data = await res.json()
             if (data.message === "Logout successful") {
                 dispatch(logoutUser())
+                localStorage.clear();
+                window.location.href = window.location.href;
             }
         } catch (e) {
             alert("An error occured while logging out")

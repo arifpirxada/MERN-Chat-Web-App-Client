@@ -34,6 +34,9 @@
   overflow: hidden;
 }
 
+.message-width {
+  width: calc(100vw - 18rem);
+}
 
 @media Only screen and (max-width: 1023.5px) {
   .my-nav {
@@ -41,6 +44,9 @@
   }
   .chatbox-height {
     height: calc(100vh - 48px);
+  }
+  .message-width {
+    width: 100vw;
   }
 }
 

@@ -181,7 +181,8 @@ function Chat() {
                         </div>
                     )) }
                 </div>
-                <div className="border-t-2 border-gray-200 px-2 pt-4 mb-2 sm:mb-0">
+            </div>
+                <div className="border-t-2 right-0 message-width border-gray-200 px-2 pt-4 mb-2 fixed bottom-0 bg-white">
                     <form className="relative flex">
                         <input ref={ messageRef } id="user-message" type="text" placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-4 sm:pl-12 bg-gray-200 rounded-md py-3" />
                         <div className="absolute right-0 items-center inset-y-0 flex">
@@ -199,7 +200,6 @@ function Chat() {
                         </div>
                     </form>
                 </div>
-            </div>
         </>
     )
 }
