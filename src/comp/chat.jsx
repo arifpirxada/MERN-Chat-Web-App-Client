@@ -63,6 +63,7 @@ function Chat() {
     useEffect(() => {
         setLatestMessages([])
         fetchMessages()
+        console.log("user:", user)
     }, [user])
 
     useEffect(() => {
@@ -125,6 +126,21 @@ function Chat() {
         setLatestMessages((prevMessages) => [...prevMessages, { message: messageRef.current.value, sender: uid }])
     }
 
+    const getProfileImage = (element) => {
+        if (element.sender === uid) {
+            return pic ? `/api/read-user-img/${pic}` : userImg;
+        } else {
+            if (user.user.pic) {
+                return user.user.google === true
+                    ? user.user.pic
+                    : `/api/read-user-img/${user.user.pic}`;
+            } else {
+                return userImg;
+            }
+        }
+    };
+
+
     return (
         <>
             <div id="chatbox" className="lg:ml-72 chatbox-height transition-all duration-200 ease-linear flex-1 p-2 sm:px-6 justify-between flex flex-col">
@@ -163,7 +179,7 @@ function Chat() {
                                     <div><span className={ `px-4 py-2 anywhere-break rounded-lg inline-block ${element.sender === uid ? "rounded-br-none bg-blue-600 text-white" : "rounded-bl-none bg-gray-300 text-gray-600"}` }>{ element.message }</span></div>
                                 </div>
                                 <div className="rounded-full overflow-hidden w-6 h-6">
-                                    <img src={ element.sender === uid ? pic ? `/api/read-user-img/${pic}` : userImg : user.user.pic ? `/api/read-user-img/${user.user.pic}` : userImg } alt="My profile" className="w-6 rounded-full order-2" />
+                                    <img src={getProfileImage(element)} alt="My profile" className="w-6 rounded-full order-2" />
                                 </div>
                             </div>
                         </div>
@@ -175,31 +191,31 @@ function Chat() {
                                     <div><span className={ `px-4 py-2 anywhere-break rounded-lg inline-block ${element.sender === uid ? "rounded-br-none bg-blue-600 text-white" : "rounded-bl-none bg-gray-300 text-gray-600"}` }>{ element.message }</span></div>
                                 </div>
                                 <div className="rounded-full overflow-hidden w-6 h-6">
-                                    <img src={ element.sender === uid ? pic ? `/api/read-user-img/${pic}` : userImg : user.user.pic ? `/api/read-user-img/${user.user.pic}` : userImg } alt="My profile" className="w-6 rounded-full order-2" />
+                                    <img src={getProfileImage(element)} alt="My profile" className="w-6 rounded-full order-2" />
                                 </div>
                             </div>
                         </div>
                     )) }
                 </div>
             </div>
-                <div className="border-t-2 right-0 message-width border-gray-200 px-2 pt-4 mb-2 fixed bottom-0 bg-white">
-                    <form className="relative flex">
-                        <input ref={ messageRef } id="user-message" type="text" placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-4 sm:pl-12 bg-gray-200 rounded-md py-3" />
-                        <div className="absolute right-0 items-center inset-y-0 flex">
-                            <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                </svg>
-                            </button>
-                            <button type="submit" onClick={ sendMessage } className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
-                                <span className="font-bold hidden sm:block">Send</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-6 w-6 ml-2 transform rotate-90">
-                                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div className="border-t-2 right-0 message-width border-gray-200 px-2 pt-4 mb-2 fixed bottom-0 bg-white">
+                <form className="relative flex">
+                    <input ref={ messageRef } id="user-message" type="text" placeholder="Write your message!" className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-4 sm:pl-12 bg-gray-200 rounded-md py-3" />
+                    <div className="absolute right-0 items-center inset-y-0 flex">
+                        <button type="button" className="inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-500 ease-in-out text-gray-500 hover:bg-gray-300 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-6 w-6 text-gray-600">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                            </svg>
+                        </button>
+                        <button type="submit" onClick={ sendMessage } className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
+                            <span className="font-bold hidden sm:block">Send</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-6 w-6 ml-2 transform rotate-90">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </>
     )
 }
